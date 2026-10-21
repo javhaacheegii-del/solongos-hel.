@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Korean TOPIK Academy</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f5fb;color:#202943;
+font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif}
+header{background:linear-gradient(135deg,#303d91,#7168e8);
+color:white;padding:25px 18px;border-radius:0 0 25px 25px}
+header h1{margin:0 0 8px;font-size:27px}
+header p{margin:0;opacity:.9}
+main{max-width:850px;margin:auto;padding:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:15px 0}
+.stat,.panel,.item{background:white;border-radius:15px;padding:15px;
+box-shadow:0 3px 14px #18234b0c}
+.stat strong{display:block;font-size:23px;color:#655be0}
+.stat span{font-size:12px;color:#6c7284}
+nav{display:flex;gap:8px;overflow-x:auto;padding:5px 0 14px}
+button,select,input{font:inherit}
+nav button,.action{border:0;border-radius:10px;padding:11px 14px;
+background:#e6e8f7;color:#333b78;white-space:nowrap;cursor:pointer}
+nav button.active,.action{background:#6259df;color:white}
+.panel{margin-bottom:15px}
+h2{font-size:19px;margin:3px 0 14px}
+input,select{width:100%;padding:12px;border:1px solid #d9ddec;
+border-radius:10px;background:white;margin:5px 0 10px}
+.item{margin:10px 0;border:1px solid #edf0f7}
+.word{font-size:22px;font-weight:750}
+.translation{margin:5px 0;color:#5e59d4;font-weight:600}
+.small{font-size:13px;color:#72798b;line-height:1.6}
+.tag{font-size:11px;background:#efedff;color:#574dcc;
+padding:4px 8px;border-radius:20px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.item button{border:0;background:#efedff;color:#5549d0;
+padding:8px 10px;border-radius:9px;cursor:pointer}
+.answer{display:block;width:100%;text-align:left;margin:8px 0;
+padding:12px;border:1px solid #dfe2ef;border-radius:10px;
+background:white;color:#202943;cursor:pointer}
+.answer:active{background:#eeecff}
+.hide{display:none}
+footer{text-align:center;padding:20px;color:#81869a;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <div style="font-size:12px;letter-spacing:2px">KOREAN LANGUAGE</div>
+  <h1>🇰🇷 TOPIK Academy</h1>
+  <p>Анхан шатнаас TOPIK 6 хүртэл</p>
+</header>
+
+<main>
+  <div class="stats">
+    <div class="stat"><strong id="learned">0</strong><span>Сурсан үг</span></div>
+    <div class="stat"><strong id="savedCount">0</strong><span>Хадгалсан</span></div>
+    <div class="stat"><strong id="correct">0</strong><span>Зөв хариулт</span></div>
+  </div>
+
+  <nav>
+    <button class="active" data-tab="words">📚 Үгс</button>
+    <button data-tab="rules">📝 Дүрэм</button>
+    <button data-tab="quiz">🎯 Тест</button>
+    <button data-tab="saved">⭐ Хадгалсан</button>
+  </nav>
+
+  <section id="words">
+    <div class="panel">
+      <h2>Үгийн сан</h2>
+      <input id="search" placeholder="Солонгос эсвэл монгол үгээр хайх...">
+      <select id="level">
+        <option value="all">Бүх түвшин</option>
+        <option value="1">TOPIK 1</option>
+        <option value="2">TOPIK 2</option>
+        <option value="3">TOPIK 3</option>
+        <option value="4">TOPIK 4</option>
+        <option value="5">TOPIK 5</option>
+        <option value="6">TOPIK 6</option>
+      </select>
+      <div class="small">Үг дээр дарж хадгалах эсвэл сурсан гэж тэмдэглээрэй.</div>
+    </div>
+    <div id="wordList"></div>
+  </section>
+
+  <section id="rules" class="hide">
+    <div class="panel">
+      <h2>Солонгос хэлний дүрэм</h2>
+      <input id="ruleSearch" placeholder="Дүрэм хайх...">
+      <select id="ruleLevel">
+        <option value="all">Бүх түвшин</option>
+        <option value="1">TOPIK 1</option>
+        <option value="2">TOPIK 2</option>
+        <option value="3">TOPIK 3</option>
+        <option value="4">TOPIK 4</option>
+        <option value="5">TOPIK 5</option>
+        <option value="6">TOPIK 6</option>
+      </select>
+    </div>
+    <div id="ruleList"></div>
+  </section>
+
+  <section id="quiz" class="hide">
+    <div class="panel">
+      <h2>🧠 Үгийн тест</h2>
+      <p id="question">Эхлэх товчийг дарна уу.</p>
+      <div id="answers"></div>
+      <p id="feedback" aria-live="polite"></p>
+      <button class="action" id="next">Тест эхлүүлэх / Дараагийн асуулт</button>
+    </div>
+  </section>
+
+  <section id="saved" class="hide">
+    <div class="panel"><h2>⭐ Миний хадгалсан үгс</h2></div>
+    <div id="savedList"></div>
+  </section>
+</main>
+<footer>TOPIK Academy · Өдөр бүр бага багаар суралцъя 🇰🇷</footer>
+
+<script>
+// Үгийн сан: энэ жагсаалтад шинэ үгс нэмж болно.
+const words = [
+["안녕하세요","Сайн байна уу","Сайн уу гэсэн хүндэтгэлийн мэндчилгээ",1],
+["감사합니다","Баярлалаа","Албан болон хүндэтгэлийн хэлбэр",1],
+["사람","Хүн","사람이 많아요. Хүн олон байна.",1],
+["학교","Сургууль","학교에 가요. Сургууль руу явна.",1],
+["친구","Найз","친구를 만나요. Найзтайгаа уулзана.",1],
+["먹다","Идэх","밥을 먹어요. Хоол идэж байна.",1],
+["마시다","Уух","물을 마셔요. Ус ууж байна.",1],
+["가다","Явах","학교에 가요. Сургууль руу явна.",1],
+["오다","Ирэх","친구가 와요. Найз ирж байна.",1],
+["보다","Үзэх, харах","영화를 봐요. Кино үзнэ.",1],
+["공부하다","Хичээл хийх","한국어를 공부해요.",1],
+["오늘","Өнөөдөр","오늘은 월요일이에요.",1],
+["내일","Маргааш","내일 만나요. Маргааш уулзъя.",1],
+["어제","Өчигдөр","어제 공부했어요.",1],
+["시간","Цаг, хугацаа","시간이 있어요. Завтай.",1],
+["돈","Мөнгө","돈이 필요해요. Мөнгө хэрэгтэй.",1],
+["일하다","Ажиллах","오늘 일해요. Өнөөдөр ажиллана.",1],
+["좋다","Сайн, таалагдах","날씨가 좋아요.",1],
+["싫다","Дургүй, тааламжгүй","저는 커피가 싫어요.",1],
+["맛있다","Амттай","음식이 맛있어요.",1],
+["행복","Аз жаргал","행복하게 살고 싶어요.",2],
+["경험","Туршлага","경험이 중요해요.",3],
+["환경","Байгаль орчин","환경을 보호해야 해요.",3],
+["사회","Нийгэм","현대 사회의 문제",4],
+["해결하다","Шийдвэрлэх","문제를 해결해야 해요.",4],
+["영향","Нөлөө","영향을 미치다",4],
+["주장","Үзэл бодол, байр суурь","자신의 주장을 설명하다",5],
+["관점","Харах өнцөг","다양한 관점에서 보다",5],
+["기여하다","Хувь нэмэр оруулах","사회에 기여하다",5],
+["불가피하다","Зайлшгүй байх","불가피한 상황",6],
+["상호작용","Харилцан үйлчлэл","사회적 상호작용",6],
+["지속 가능성","Тогтвортой байдал","지속 가능성을 고려하다",6]
+].map((w,i)=>({id:i,ko:w[0],mn:w[1],ex:w[2],level:w[3]}));
+
+// Дүрмийн сан: тайлбар, жишээтэй.
+const rules = [
+["N은/는","Сэдэв заах нөхцөл","받침-тай үгэнд 은, эгшгээр төгссөн үгэнд 는 хэрэглэнэ.","저는 학생이에요. Би оюутан.",1],
+["N이/가","Өгүүлэгдэхүүн заах","받침-тай үгэнд 이, эгшгээр төгссөн үгэнд 가.","친구가 와요. Найз ирнэ.",1],
+["N을/를","Үйлийн тусагдахуун","받침-тай үгэнд 을, эгшгээр төгссөн үгэнд 를.","밥을 먹어요. Хоол иднэ.",1],
+["N에 가다","... руу явах","Очих газар заана.","학교에 가요. Сургууль руу явна.",1],
+["V-아요/어요","Энгийн хүндэтгэлийн одоо цаг","Үгийн үндэс болон эгшгээс хамаарч хувирна.","먹어요, 가요, 마셔요",1],
+["V-았/었어요","Өнгөрсөн цаг","Үйл явдал өмнө болсон гэдгийг илэрхийлнэ.","어제 공부했어요. Өчигдөр хичээл хийсэн.",1],
+["V-(으)ㄹ 거예요","Ирээдүй цаг","Төлөвлөгөө, ирээдүйн үйл явдал.","내일 갈 거예요. Маргааш явна.",1],
+["V-고 싶어요","... хиймээр байна","Хүсэл илэрхийлнэ.","한국에 가고 싶어요.",1],
+["V-아/어서","... учраас, дараа нь","Шалтгаан эсвэл дарааллыг заана.","아파서 쉬어요. Өвдсөн учраас амарна.",2],
+["V-(으)면","Хэрэв ... бол","Нөхцөл илэрхийлнэ.","시간이 있으면 만나요.",2],
+["V-지만","Гэхдээ","Хоёр санааг эсрэгцүүлнэ.","비싸지만 좋아요.",2],
+["V-(으)려고 하다","... хийх гэж байна","Зорилго, төлөвлөгөө.","공부하려고 해요.",2],
+["V-아/어야 하다","... ёстой","Шаардлага, үүрэг.","열심히 공부해야 해요.",2],
+["V-(으)ㄹ 수 있다","Чадах, боломжтой","Чадвар эсвэл боломж.","한국어를 읽을 수 있어요.",2],
+["V-는 것","Үйл үгийг нэршүүлэх","Үйлдлийг зүйл, үйл ажиллагаа болгон илэрхийлнэ.","책 읽는 것을 좋아해요.",3],
+["V-(으)ㄴ/는 반면에","... байхад нөгөө талаас","Эсрэгцүүлэн харьцуулна.","가격은 싼 반면에 품질은 좋아요.",3],
+["V-(으)ㄹ 뿐만 아니라","Зөвхөн ... төдийгүй","Нэмэлт санаа холбоно.","빠를 뿐만 아니라 정확해요.",4],
+["V-(으)ㄴ/는 셈이다","... гэсэн үгтэй адил","Үр дүнг дүгнэн илэрхийлнэ.","거의 끝난 셈이에요.",5],
+["V-(으)ㄹ지라도","Хэдийгээр ... байсан ч","Бууж өгөхгүй, эсрэг нөхцөлийг илэрхийлнэ.","어려울지라도 도전하겠습니다.",5],
+["V-(으)므로","... тул, учраас","Албан бичгийн шалтгаан.","중요하므로 확인해야 합니다.",6],
+["N에 불과하다","Зөвхөн ... төдий","Хэмжээ, ач холбогдлыг хязгаарлана.","시작에 불과합니다.",6],
+["N을/를 비롯하여","...-аас эхлээд, түүний дотор","Жишээ болон бүлэг зүйл нэрлэнэ.","한국을 비롯하여 여러 나라",5],
+["V-는 경향이 있다","... хандлагатай","Ерөнхий давтагдах шинжийг заана.","소비가 증가하는 경향이 있어요.",5],
+["V-(으)ㄹ수록","... тусам","Хоёр өөрчлөлт хамт өсөхийг илэрхийлнэ.","공부할수록 재미있어요.",4]
+].map((r,i)=>({id:i,name:r[0],mn:r[1],desc:r[2],ex:r[3],level:r[4]}));
+
+const get=(k,d=[])=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+let learned=get("topik_learned",[]);
+let saved=get("topik_saved",[]);
+let correct=get("topik_correct",0);
+const persist=()=>{
+ localStorage.setItem("topik_learned",JSON.stringify(learned));
+ localStorage.setItem("topik_saved",JSON.stringify(saved));
+ localStorage.setItem("topik_correct",JSON.stringify(correct));
+};
+function stats(){
+ document.getElementById("learned").textContent=learned.length;
+ document.getElementById("savedCount").textContent=saved.length;
+ document.getElementById("correct").textContent=correct;
+}
+function showWords(){
+ const q=document.getElementById("search").value.toLowerCase().trim();
+ const l=document.getElementById("level").value;
+ const list=words.filter(w=>(w.ko+" "+w.mn+" "+w.ex).toLowerCase().includes(q)&&(l==="all"||w.level==l));
+ document.getElementById("wordList").innerHTML=list.map(w=>`
+ <div class="item">
+ <div class="row"><span class="tag">TOPIK ${w.level}</span>
+ <button onclick="toggleSave(${w.id})">${saved.includes(w.id)?"★ Хадгалсан":"☆ Хадгалах"}</button></div>
+ <p class="word">${w.ko}</p><p class="translation">${w.mn}</p>
+ <p class="small">${w.ex}</p>
+ <button onclick="toggleLearn(${w.id})">${learned.includes(w.id)?"✓ Сурсан":"Сурсан гэж тэмдэглэх"}</button>
+ </div>`).join("")||"<p>Үг олдсонгүй.</p>";
+}
+function showRules(){
+ const q=document.getElementById("ruleSearch").value.toLowerCase().trim();
+ const l=document.getElementById("ruleLevel").value;
+ const list=rules.filter(r=>(r.name+" "+r.mn+" "+r.desc+" "+r.ex).toLowerCase().includes(q)&&(l==="all"||r.level==l));
+ document.getElementById("ruleList").innerHTML=list.map(r=>`
+ <div class="item"><span class="tag">TOPIK ${r.level}</span>
+ <p class="word">${r.name}</p><p class="translation">${r.mn}</p>
+ <p>${r.desc}</p><p class="small">Жишээ: ${r.ex}</p></div>`).join("")||"<p>Дүрэм олдсонгүй.</p>";
+}
+function toggleSave(id){
+ saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];
+ persist();stats();showWords();showSaved();
+}
+function toggleLearn(id){
+ learned=learned.includes(id)?learned.filter(x=>x!==id):[...learned,id];
+ persist();stats();showWords();
+}
+function showSaved(){
+ const list=words.filter(w=>saved.includes(w.id));
+ document.getElementById("savedList").innerHTML=list.map(w=>`
+ <div class="item"><p class="word">${w.ko}</p><p class="translation">${w.mn}</p>
+ <p class="small">${w.ex}</p><button onclick="toggleSave(${w.id})">Хасах</button></div>`).join("")||"<p>Одоогоор хадгалсан үг алга.</p>";
+}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
+ document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+ b.classList.add("active");
+ document.querySelectorAll("main section").forEach(s=>s.classList.add("hide"));
+ document.getElementById(b.dataset.tab).classList.remove("hide");
+ if(b.dataset.tab==="saved")showSaved();
+}));
+document.getElementById("search").addEventListener("input",showWords);
+document.getElementById("level").addEventListener("change",showWords);
+document.getElementById("ruleSearch").addEventListener("input",showRules);
+document.getElementById("ruleLevel").addEventListener("change",showRules);
+
+let current=null,answered=false;
+function nextQuestion(){
+ if(words.length<4)return;
+ current=words[Math.floor(Math.random()*words.length)];
+ answered=false;
+ document.getElementById("feedback").textContent="";
+ document.getElementById("question").textContent=`"${current.ko}" гэдэг үг ямар утгатай вэ?`;
+ const opts=[current];
+ while(opts.length<4){
+  const w=words[Math.floor(Math.random()*words.length)];
+  if(!opts.some(x=>x.id===w.id))opts.push(w);
+ }
+ opts.sort(()=>Math.random()-.5);
+ document.getElementById("answers").innerHTML=opts.map(w=>
+ `<button class="answer" onclick="checkAnswer(${w.id})">${w.mn}</button>`).join("");
+}
+function checkAnswer(id){
+ if(answered)return;
+ answered=true;
+ if(id===current.id){
+  correct++;persist();stats();
+  document.getElementById("feedback").textContent="🎉 Зөв хариуллаа!";
+ }else{
+  document.getElementById("feedback").textContent="❌ Зөв хариулт: "+current.mn;
+ }
+}
+document.getElementById("next").addEventListener("click",nextQuestion);
+showWords();showRules();showSaved();stats();
+</script>
+</body>
+</html>
